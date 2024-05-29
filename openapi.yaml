@@ -1,0 +1,563 @@
+openapi: "3.0.0"
+info: 
+  title: Task 
+
+  version: "1.0.0"
+  description: Backend task assigned
+servers:
+  - url: http://localhost:8080
+paths: 
+  /auth/login:
+    post:
+      tags:
+       - Auth
+      summary: Login a user
+      description: Creates a new token for the loggedin user
+      
+      requestBody:
+        description: Request to create user
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+        required: true
+      responses:
+        '200':
+          description: User loggedin successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '401':
+          description: Authentication error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: User password is wrong
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: User not found
+        '422':
+          description: User credentials not provided
+          content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string
+                      example: User credentials not found
+        '500':
+            description: Internal server error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string
+                      example: Internal server error
+  /auth/signup:
+    post:
+      tags:
+       - Auth
+      summary: Create a new account/user
+      description: Creates a new account
+
+      requestBody:
+        description: Request to create account
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+        required: true
+      responses:
+        '201':
+          description: Account created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Account created successfully.
+        '409':
+            description: Conflict
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string
+                      example: The provided email already exists
+        '422':
+          description: User credentials not provided
+          content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string
+        '500':
+            description: Internal server error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string
+  /account:
+    get:
+      summary: Get a list of accounts
+      description: Returns an array containing all the posts
+      operationId: getUsers
+      tags:
+        - Account
+      parameters:
+        - name: "token"
+          in: header
+          example: {eYvsgxvasxasixh.saiuxaxsuh8exask.sabxashbx, iat:"", expat:""}
+          description: "User jwt"
+          schema:
+            type: object
+            format: JSON
+        - name: limit
+          in: query
+          description: Number of items to return
+          required: false
+          schema:
+            type: integer
+        - name: page
+          in: query
+          description: Page number
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account2"
+        "498":
+          description: Authentication token not provided
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: The provided userID is null.
+        "401":
+          description: Unauthorized 
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: The provided userID is not valid
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Account not found
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    post:
+      tags:
+       - Account
+      summary: Create a new account
+      description: Creates a new account
+      requestBody:
+        description: Request to create account
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Account4'
+        required: true
+      responses:
+        '201':
+          description: Account created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        "401":
+          description: Unauthorized 
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: The provided userID is not valid
+        '422':
+          description: User credentials not provided
+          content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string
+        "498":
+          description: Authentication token not provided
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: The provided userID is null.
+        '500':
+            description: Internal server error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string      
+    put:
+      tags:
+        - Account
+      parameters:
+        - name: 'token'
+          in: header
+          required: true
+          description: User token
+          example: {eYgxyaugxsagx.isaxbkasjbxkajsnxjasoxh.ducboauhcaishcia, iat:"", expat:""}
+          schema:
+            type: object
+            format: JSON
+      summary: Edit the account
+      description: Updates the account
+      requestBody:
+        description: Request to edit account
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Account3' 
+      responses:
+        '200':
+          description: Account updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '401':
+          description: Unauthorized 
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: The provided userID is not valid
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Account not found
+        "498":
+          description: Authentication token not provided
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: The provided userID is null.
+        
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    delete:
+      tags:
+        - Account
+      parameters:
+        - name: 'token'
+          in: header
+          required: true
+          description: User token
+          example: {id: "xhuaiuhsiuxh.aixsbisu.sxiabixia", iat:"", expat:""}
+          schema:
+            type: object
+            format: JSON
+        
+      summary: Delete the post
+      description: Deletes the post
+      responses:
+        '200':
+          description: Account deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Account deleted successfully.
+        '400':
+          description: Invalid request payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: The provided userId is not valid
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Account not found
+        "498":
+          description: Authentication token not provided
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: The provided userID is null.
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /account/[id]:
+    get:
+      summary: Get a list of accounts
+      description: Returns an array containing all the posts
+      operationId: getUsers
+      tags:
+        - Account
+      parameters:
+        - name: "token"
+          in: header
+          example: {eYvsgxvasxasixh.saiuxaxsuh8exask.sabxashbx, iat:"", expat:""}
+          description: "User jwt"
+          schema:
+            type: object
+            format: JSON
+        - name: id
+          in: path
+          description: ID of the account
+          required: true
+          schema:
+            type: string
+        
+      responses:
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        "498":
+          description: Authentication token not provided
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: The provided userID is null.
+        "401":
+          description: Unauthorized 
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: The provided userID is not valid
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Account not found
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  
+components:
+  schemas:
+    Account:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: integer
+          format: int64
+        birthday:
+          type: string
+          format: date
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Account2:
+      type: array
+      items: 
+        $ref: '#/components/schemas/Account'
+        
+    Account3:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        first_name:
+          type: string
+        last_name:
+          type: string
+        phone:
+          type: integer
+          format: int64
+        birthday:
+          type: string
+          format: date
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time 
+
+    Account4:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: integer
+          format: int64
+        birthday:
+          type: string
+          format: date
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Token:
+      type: object
+      properties:
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+            iat:
+              type: string
+            expat:
+              type: string
+
+
+
+        
+        
+      
